@@ -1,9 +1,15 @@
 # KANELÉ: Kolmogorov–Arnold Networks for Efficient LUT-based Evaluation
 
-Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate Arrays (FPGA 2026)
+
+Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate Arrays (FPGA' 2026)
 
 [![PDF (Publisher)](https://img.shields.io/badge/PDF-Publisher-blue)](publisher-pdf-link)
 [![PDF (arXiv)](https://img.shields.io/badge/PDF-arXiv-b31b1b)](https://arxiv.org/pdf/XXXX.XXXXX.pdf)
+
+
+<p align="center">
+   <img src="graphics/KANELE_logo.png" alt="KANELÉ" width="250"/>
+</p>
 
 ![KAN Teaser](graphics/KAN_Teaser.jpg)
 
