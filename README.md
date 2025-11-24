@@ -1,12 +1,21 @@
 # KANELÉ: Kolmogorov–Arnold Networks for Efficient LUT-based Evaluation
 
-# Train and evaluate the models on our benchmarks
+Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate Arrays (FPGA 2026)
 
-1. (Optional, we provided the environment in the `environment.yml` file, see [Conda](#Conda) section for setting up) Activate the environment:
+[![PDF (Publisher)](https://img.shields.io/badge/PDF-Publisher-blue)](publisher-pdf-link)
+[![PDF (arXiv)](https://img.shields.io/badge/PDF-arXiv-b31b1b)](https://arxiv.org/pdf/XXXX.XXXXX.pdf)
+
+## 🚀 Usage Guide
+
+### 1. (Optional) Activate the Environment
+
+We provided the environment in the `environment.yml` file, see [Conda](#Conda) section for setting up. To activate the environment:
+   
 ```bash
 conda activate kan
 ```
-2. Next, to train the model in each benchmark:
+
+### 2. Train the model on a benchmark
 
 ```bash
 cd benchmarks/<bench-mark-name>
@@ -18,7 +27,9 @@ python train.py
 
 Where benchmark names could be `JSC_CERNBox`, or `MNIST`. This will generate the trained model saved in `benchmarks/<bench-mark-name>/models` 
 
-3. Then, to convert the trained model to hardware, in the same benchmark directory:
+### 3. Convert the trained model to FPGA hardware
+
+In the same benchmark directory:
 
 ```bash
 python convert.py
@@ -26,7 +37,9 @@ python convert.py
 
 Each of the convert file will have a `model_tag` parameter, if you do train a new model you have to modify it. Otherwise we provide the trained models as a baseline. 
 
-4. To run xsim with the generated RTL
+### 4. Xsim
+
+To run xsim with the generated RTL
 
 ```bash
 cd models/<model-tag>/firmware/sim
@@ -44,7 +57,9 @@ To measure latency:
 vivado -mode batch -source sim_latency.tcl
 ```
 
-5. To build the bit-file, or compile the project out of context
+### 5. Building bitfile
+
+To build the bit-file, or compile the project out of context
 
 ```bash
 cd models/<model-tag>/firmware/
@@ -59,12 +74,12 @@ or
 vivado -mode batch -source vivado/build_ooc.tcl
 ```
 
-# Related FPGA benchmarks information
+## ⚙️ Related FPGA benchmarks information
 * Xilinx Virtex UltraScale+ FPGA: `xcvu9p-flgb2104-2-i` 
 * Zynq UltraScale+ MPSoC: `xczu7ev-ffvc1156-2-e`
 * Vivado version: `2024.1`
 
-# Conda 
+## 🐍 Conda 
 
 Create conda environment:
 
@@ -82,7 +97,7 @@ And then do whatever you want in this environment (edit files, open notebooks, e
 
 ```
 conda deactivate
-``
+```
 
 If you make any update for the environment, please edit the `environment.yml` file and run:
 
