@@ -5,6 +5,9 @@ Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate A
 [![PDF (Publisher)](https://img.shields.io/badge/PDF-Publisher-blue)](publisher-pdf-link)
 [![PDF (arXiv)](https://img.shields.io/badge/PDF-arXiv-b31b1b)](https://arxiv.org/pdf/XXXX.XXXXX.pdf)
 
+![KAN Teaser](graphics/KAN_Teaser.jpg)
+
+
 ## 🚀 Usage Guide
 
 ### 1. (Optional) Activate the Environment
