@@ -95,7 +95,7 @@ class KAN_LUT:
 
         return truth_table
 
-    def _inferece_sample(self, sample):
+    def _inference_sample(self, sample):
         """
         Evaluate the KAN for a single sample
         """
@@ -133,10 +133,12 @@ class KAN_LUT:
                 if acc_out_node < min_state: acc_out_node = min_state
                 if acc_out_node > max_state: acc_out_node = max_state
 
-                acc[out_index] = acc_out_node      
+                # Clamp to output quantizer range (signed integer domain)
+                acc_out_node = max(min_state, min(max_state, acc_out_node))
+                acc[out_index] = acc_out_node
 
-            running_accumulator = acc     
-        
+            running_accumulator = acc
+
         return running_accumulator
 
     @torch.inference_mode()
@@ -165,7 +167,7 @@ class KAN_LUT:
         #Loop over each sample in the batch
         outs_int = []
         for sample_index in range(x.shape[0]):
-            outs_int.append(self._inferece_sample((x[sample_index])))
+            outs_int.append(self._inference_sample((x[sample_index])))
         outs_int = torch.stack(outs_int, dim=0)
 
         # Dequantize to floats on last layer's scale
@@ -573,7 +575,7 @@ class KAN_LUT:
         # reference integer outputs via the internal integer evaluator
         outs = []
         for i in range(n_vectors):
-            outs.append(self._inferece_sample(x_q[i]))
+            outs.append(self._inference_sample(x_q[i]))
         outs = torch.stack(outs, dim=0).to(torch.int64)
 
         # Write as space-separated decimals, one vector per line
