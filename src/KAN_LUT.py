@@ -79,18 +79,25 @@ class KAN_LUT:
         layer = self.KAN.layers[layer_index].to(self.device) 
 
         truth_table = {}
-        truth_table['acive'] = int(layer.spline_selector[out_node, in_node].item()) #Where this LUT is pruned or not
+        truth_table['acive'] = int(layer.spline_selector[out_node, in_node].item())
         scale, bits = layer.output_quantizer.get_scale_factor_bits(self.is_cuda)
         
-        #Create a tensor of the input state space for each input node
+        # Create a tensor of the input state space for each input node
+        # input_state_space should be FLOAT values that the layer expects
         x = input_state_space.unsqueeze(0).repeat(layer.in_features, 1).T.to(self.device)
 
-        #Calculate the lookup table values
-        base_output = layer.base_activation(x)[: , in_node] * layer.base_weight[out_node, in_node]
+        # Calculate the lookup table values
+        base_output = layer.base_activation(x)[:, in_node] * layer.base_weight[out_node, in_node]
         spline_output = F.linear(layer.b_splines(x)[:, in_node, :], layer.scaled_spline_weight[out_node, in_node, :])
         
-        #Store the LUT outputs as integers
-        lut_output = ((layer.spline_selector[out_node, in_node] * (base_output + spline_output))/scale).round().to(torch.int).tolist()   
+        # Apply spline selector and quantize
+        combined = layer.spline_selector[out_node, in_node] * (base_output + spline_output)
+        
+        # Quantize the same way the float model does
+        quantized = layer.output_quantizer(combined.unsqueeze(-1)).squeeze(-1)
+        
+        # Convert to integers for LUT storage
+        lut_output = (quantized / scale).round().to(torch.int).tolist()
         truth_table['values_int'] = lut_output
 
         return truth_table
@@ -493,7 +500,7 @@ class KAN_LUT:
 
             #Deal with the index signal
             vhdl_text = tpl.replace("{{IDX_SIGNAL_DECLS}}", "" if i == 0 else f"signal idx : unsigned(LUT_ADDR_WIDTH_{i}-1 downto 0);")
-            vhdl_text = vhdl_text.replace("{{IDX_ASSIGNMENT}}", "" if i == 0 else f"idx <= unsigned(d + to_signed(2**(LUT_ADDR_WIDTH_{i}-1), LUT_ADDR_WIDTH_{i}));")
+            vhdl_text = vhdl_text.replace("{{IDX_ASSIGNMENT}}", "" if i == 0 else f"idx <= unsigned(std_logic_vector(d)) XOR to_unsigned(2**(LUT_ADDR_WIDTH_{i}-1), LUT_ADDR_WIDTH_{i});")
             vhdl_text = vhdl_text.replace("{{IDX_SIGNAL}}", "d" if i == 0 else f"idx")
 
             #Deal with the other signals

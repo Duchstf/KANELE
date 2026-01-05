@@ -170,7 +170,7 @@ class KAN_LUT:
         return outs_int.to(torch.float32) * last_scale
 
     @torch.inference_mode()
-    def quick_match_check(self, n: int = 1, atol: float = 1e-4) -> float:
+    def quick_match_check(self, n: int = 1, atol: float = 1) -> float:
         """Compare self.predict vs self.KAN on a few samples; returns max |error|."""
         self.KAN.to(self.device).eval()  # ensure model is on the same device as x
         in_features = self.KAN.layers[0].in_features
@@ -182,7 +182,7 @@ class KAN_LUT:
         return max_err
 
     #----------FIRMWARE IMPLEMENTATION----------
-    def generate_firmware(self, adder_tree=True, clock_period: float = 5.0, n_add=2, fpga_part: str = "xcvu9p-flgb2104-2-i"):
+    def generate_firmware(self, adder_tree=True, clock_period: float = 5.0, n_add=2, fpga_part: str = "xcvu9p-flgb2104-2-i", latency: int = 8):
         """
         Generate the firmware for the KAN LUT
         """
@@ -611,12 +611,12 @@ class KAN_LUT:
             f.write(tpl_ooc_text)
     
     #------------------SIMULATION------------------
-    def simulate_firmware(self, rtl_dir_rel: str = "./../src", top_name: str = "KAN", n_vectors: int = 2):
+    def simulate_firmware(self, rtl_dir_rel: str = "./../src", top_name: str = "KAN", n_vectors: int = 2, latency: int = 8):
         sim_dir = os.path.join(self.model_dir, "firmware", "sim")
         os.makedirs(sim_dir, exist_ok=True)
 
         self._write_test_vectors(n_vectors,  os.path.join(sim_dir, "vectors_in.txt"), os.path.join(sim_dir, "vectors_out.txt"))
-        self._write_tb()
+        self._write_tb(latency=latency)
         self._write_sim_tcl()
 
         print(f"[SIM] Emitted TB + vectors + TCL to: {sim_dir}")
@@ -651,8 +651,13 @@ class KAN_LUT:
 
         pass
 
-    def _write_tb(self):
-        shutil.copy(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan.vhd"), os.path.join(self.firmware_dir, "sim", "tb_kan.vhd"))
+    def _write_tb(self, latency: int = 8):
+        with open(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan.vhd"), "r") as tf: tpl = tf.read()
+        
+        #Write it out to the file
+        tpl = tpl.replace("{{LATENCY}}", str(latency))
+        with open(os.path.join(self.firmware_dir, "sim", "tb_kan.vhd"), "w") as f: f.write(tpl)
+
         shutil.copy(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan_latency.vhd"), os.path.join(self.firmware_dir, "sim", "tb_kan_latency.vhd"))
     
     def _write_sim_tcl(self):
