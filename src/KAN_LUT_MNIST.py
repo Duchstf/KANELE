@@ -48,8 +48,6 @@ class KAN_LUT:
         for i, layer in enumerate(self.KAN.layers):
             in_features = layer.in_features
             out_features = layer.out_features
-            in_bit_width = layer.in_precision
-            out_bit_width = layer.out_precision
             input_state_space = None
 
             #First layer is treated differently

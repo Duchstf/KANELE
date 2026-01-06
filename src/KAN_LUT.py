@@ -131,8 +131,6 @@ class KAN_LUT:
                 if acc_out_node < min_state: acc_out_node = min_state
                 if acc_out_node > max_state: acc_out_node = max_state
 
-                # Clamp to output quantizer range (signed integer domain)
-                acc_out_node = max(min_state, min(max_state, acc_out_node))
                 acc[out_index] = acc_out_node
 
             running_accumulator = acc
