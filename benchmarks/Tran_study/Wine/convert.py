@@ -60,4 +60,4 @@ kan_lut.quick_match_check() #Test matching of LUT implementation with the base m
 kan_lut.generate_firmware(clock_period=1.0, n_add=4, fpga_part="xczu7ev-ffvc1156-2-e")
 
 #Simulate the firmware
-kan_lut.simulate_firmware()
+kan_lut.simulate_firmware(latency=6)
