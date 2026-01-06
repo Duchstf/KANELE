@@ -51,8 +51,6 @@ class KAN_LUT:
         for i, layer in enumerate(self.KAN.layers):
             in_features = layer.in_features
             out_features = layer.out_features
-            in_bit_width = layer.in_precision
-            out_bit_width = layer.out_precision
             input_state_space = None
 
             #First layer is treated differently
@@ -79,25 +77,18 @@ class KAN_LUT:
         layer = self.KAN.layers[layer_index].to(self.device) 
 
         truth_table = {}
-        truth_table['acive'] = int(layer.spline_selector[out_node, in_node].item())
+        truth_table['acive'] = int(layer.spline_selector[out_node, in_node].item()) #Where this LUT is pruned or not
         scale, bits = layer.output_quantizer.get_scale_factor_bits(self.is_cuda)
         
-        # Create a tensor of the input state space for each input node
-        # input_state_space should be FLOAT values that the layer expects
+        #Create a tensor of the input state space for each input node
         x = input_state_space.unsqueeze(0).repeat(layer.in_features, 1).T.to(self.device)
 
-        # Calculate the lookup table values
-        base_output = layer.base_activation(x)[:, in_node] * layer.base_weight[out_node, in_node]
+        #Calculate the lookup table values
+        base_output = layer.base_activation(x)[: , in_node] * layer.base_weight[out_node, in_node]
         spline_output = F.linear(layer.b_splines(x)[:, in_node, :], layer.scaled_spline_weight[out_node, in_node, :])
         
-        # Apply spline selector and quantize
-        combined = layer.spline_selector[out_node, in_node] * (base_output + spline_output)
-        
-        # Quantize the same way the float model does
-        quantized = layer.output_quantizer(combined.unsqueeze(-1)).squeeze(-1)
-        
-        # Convert to integers for LUT storage
-        lut_output = (quantized / scale).round().to(torch.int).tolist()
+        #Store the LUT outputs as integers
+        lut_output = ((layer.spline_selector[out_node, in_node] * (base_output + spline_output))/scale).round().to(torch.int).tolist()   
         truth_table['values_int'] = lut_output
 
         return truth_table
@@ -500,7 +491,7 @@ class KAN_LUT:
 
             #Deal with the index signal
             vhdl_text = tpl.replace("{{IDX_SIGNAL_DECLS}}", "" if i == 0 else f"signal idx : unsigned(LUT_ADDR_WIDTH_{i}-1 downto 0);")
-            vhdl_text = vhdl_text.replace("{{IDX_ASSIGNMENT}}", "" if i == 0 else f"idx <= unsigned(std_logic_vector(d)) XOR to_unsigned(2**(LUT_ADDR_WIDTH_{i}-1), LUT_ADDR_WIDTH_{i});")
+            vhdl_text = vhdl_text.replace("{{IDX_ASSIGNMENT}}", "" if i == 0 else f"idx <= unsigned(d + to_signed(2**(LUT_ADDR_WIDTH_{i}-1), LUT_ADDR_WIDTH_{i}));")
             vhdl_text = vhdl_text.replace("{{IDX_SIGNAL}}", "d" if i == 0 else f"idx")
 
             #Deal with the other signals
@@ -556,12 +547,12 @@ class KAN_LUT:
             f.write(tpl_ooc_text)
     
     #------------------SIMULATION------------------
-    def simulate_firmware(self, rtl_dir_rel: str = "./../src", top_name: str = "KAN", n_vectors: int = 2):
+    def simulate_firmware(self, rtl_dir_rel: str = "./../src", top_name: str = "KAN", n_vectors: int = 2, latency: int = 8):
         sim_dir = os.path.join(self.model_dir, "firmware", "sim")
         os.makedirs(sim_dir, exist_ok=True)
 
         self._write_test_vectors(n_vectors,  os.path.join(sim_dir, "vectors_in.txt"), os.path.join(sim_dir, "vectors_out.txt"))
-        self._write_tb()
+        self._write_tb(latency)
         self._write_sim_tcl()
 
         print(f"[SIM] Emitted TB + vectors + TCL to: {sim_dir}")
@@ -596,8 +587,11 @@ class KAN_LUT:
 
         pass
 
-    def _write_tb(self):
-        shutil.copy(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan.vhd"), os.path.join(self.firmware_dir, "sim", "tb_kan.vhd"))
+    def _write_tb(self, latency):
+        with open(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan.vhd"), "r") as tf: tpl = tf.read()
+        tpl = tpl.replace("{{LATENCY}}", str(latency))
+        with open(os.path.join(self.firmware_dir, "sim", "tb_kan.vhd"), "w") as f: f.write(tpl)
+
         shutil.copy(os.path.join(os.path.dirname(__file__), "templates", "sim", "tb_kan_latency.vhd"), os.path.join(self.firmware_dir, "sim", "tb_kan_latency.vhd"))
     
     def _write_sim_tcl(self):
