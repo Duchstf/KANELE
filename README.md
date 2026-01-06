@@ -23,7 +23,7 @@ Authors: Duc Hoang*, Aarush Gupta*, Philip Harris. MIT. *Equal Contributions.
 We provided the environment in the `environment.yml` file, see [Conda](#Conda) section for setting up. To activate the environment:
    
 ```bash
-conda activate kan
+conda activate kanele
 ```
 
 ### 2. Train the model on a benchmark
@@ -95,13 +95,13 @@ vivado -mode batch -source vivado/build_ooc.tcl
 Create conda environment:
 
 ```
-conda env create -f environment.yml -n kan
+conda env create -f environment.yml
 ```
 
 Activate the environment:
 
 ```
-conda activate kan
+conda activate kanele
 ```
 
 And then do whatever you want in this environment (edit files, open notebooks, etc.). To deactivate the environment:
@@ -117,3 +117,4 @@ conda env update --file environment.yml  --prune
 ```
 
 Reference on conda environment here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+**Pytorch Note:** Some people have encountered issue with Pytorch package installation within the environment, it's typically solved by installing Pytorch with the appropriate environment here: https://pytorch.org/
