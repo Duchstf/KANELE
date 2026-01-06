@@ -59,4 +59,26 @@ kan_lut.quick_match_check() #Test matching of LUT implementation with the base m
 kan_lut.generate_firmware(clock_period=1.0, n_add=4)
 
 #Simulate the firmware
-kan_lut.simulate_firmware(n_vectors = 10)
+kan_lut.simulate_firmware(n_vectors = 10, latency=7)
+
+import numpy as np
+def lut_value_stats(kan_lut):
+    print("LUT value statistics:")
+    for i, layer in enumerate(kan_lut.KAN.layers):
+        vals = []
+        for j in range(layer.in_features):
+            for k in range(layer.out_features):
+                tt = kan_lut.truth_tables[f"{i}_{j}_{k}"]
+                if tt["acive"] == 0:
+                    continue
+                vals.extend(tt["values_int"])
+        vals = np.array(vals, dtype=np.int64)
+        print(
+            f"Layer {i}: out_precision={layer.out_precision}, "
+            f"min={vals.min()}, max={vals.max()}, "
+            f"neg_frac={(vals<0).mean():.3f}, "
+            f">15_frac={(vals>15).mean():.3f}"
+        )
+
+
+lut_value_stats(kan_lut)

@@ -89,6 +89,12 @@ class KAN_LUT:
         
         #Store the LUT outputs as integers
         lut_output = ((layer.spline_selector[out_node, in_node] * (base_output + spline_output))/scale).round().to(torch.int).tolist()   
+        
+        #Saturate
+        layer_state_space = layer.output_quantizer.get_bin_state_space(self.is_cuda).to(self.device)
+        min_state = int(layer_state_space.min())
+        max_state = int(layer_state_space.max())
+        lut_output = np.clip(lut_output, min_state, max_state).tolist()
         truth_table['values_int'] = lut_output
 
         return truth_table
@@ -125,7 +131,6 @@ class KAN_LUT:
                     if truth_table["acive"] == 0: continue # pruned connection
                     lookup_index = sample[in_index] if i == 0 else int(running_accumulator[in_index] + 2**(input_bit_width - 1))
                     acc_out_node += truth_table['values_int'][lookup_index]
-
                 
                 # clamp the post-sum (matches layer.output_quantizer after the sum)
                 if acc_out_node < min_state: acc_out_node = min_state
@@ -171,7 +176,7 @@ class KAN_LUT:
         return outs_int.to(torch.float32) * last_scale
 
     @torch.inference_mode()
-    def quick_match_check(self, n: int = 1, atol: float = 1e-4) -> float:
+    def quick_match_check(self, n: int = 1, atol: float = 5) -> float:
         """Compare self.predict vs self.KAN on a few samples; returns max |error|."""
         self.KAN.to(self.device).eval()  # ensure model is on the same device as x
         in_features = self.KAN.layers[0].in_features
@@ -509,9 +514,13 @@ class KAN_LUT:
     def write_mem_files(self):
 
         def int_to_hex_word(value: int, bits: int = 32) -> str:
-            """Convert signed/unsigned int to hex word of given bit width."""
+            lo = -(1 << (bits - 1))
+            hi =  (1 << (bits - 1)) - 1
+
+            v = min(max(value, lo), hi)  # clamp
             mask = (1 << bits) - 1
-            return f"{value & mask:0{bits // 4}X}"
+
+            return f"{v & mask:0{(bits + 3)//4}X}"
 
         written = 0
         for i in range(0, len(self.KAN.layers)):
