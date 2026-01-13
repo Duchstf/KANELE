@@ -16,7 +16,7 @@ Authors: Duc Hoang*, Aarush Gupta*, Philip Harris. MIT. *Equal Contributions.
 ![KAN Teaser](graphics/KAN_Teaser.jpg)
 
 
-## 🚀 Usage Guide
+## Usage Guide
 
 ### 1. (Optional) Activate the Environment
 
@@ -32,8 +32,10 @@ conda activate kanele
 cd benchmarks/<bench-mark-name>
 ```
 
+There will be different versions of the training script in each directory, namely `train_float.py`, `train_quant.py` etc. To reproduce the results reported in the paper, you can run
+
 ```bash
-python train.py
+python train_quant.py
 ```
 
 Where benchmark names could be `JSC_CERNBox`, or `MNIST`. This will generate the trained model saved in `benchmarks/<bench-mark-name>/models` 
@@ -68,7 +70,7 @@ To measure latency:
 vivado -mode batch -source sim_latency.tcl
 ```
 
-### 5. Building bitfile
+### 5. Building bitfile or place and route in OOC (out-of-context) mode:
 
 To build the bit-file, or compile the project out of context
 
@@ -85,12 +87,12 @@ or
 vivado -mode batch -source vivado/build_ooc.tcl
 ```
 
-## ⚙️ Related FPGA benchmarks information
+## Related FPGA benchmarks information
 * Xilinx Virtex UltraScale+ FPGA: `xcvu9p-flgb2104-2-i` 
 * Zynq UltraScale+ MPSoC: `xczu7ev-ffvc1156-2-e`
 * Vivado version: `2024.1`
 
-## 🐍 Conda 
+## Conda 
 
 Create conda environment:
 
@@ -118,3 +120,20 @@ conda env update --file environment.yml  --prune
 
 Reference on conda environment here: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 **Pytorch Note:** Some people have encountered issue with Pytorch package installation within the environment, it's typically solved by installing Pytorch with the appropriate environment here: https://pytorch.org/
+
+# Citation
+
+If you find the work useful to your research, you can cite us here: 
+
+```
+@inproceedings{Hoang:2025sdb,
+    author = "Hoang, Duc and Gupta, Aarush and Harris, Philip",
+    title = "{KANEL{\'E}: Kolmogorov-Arnold Networks for Efficient LUT-based Evaluation}",
+    eprint = "2512.12850",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.AR",
+    doi = "10.1145/3748173.3779202",
+    month = "12",
+    year = "2025"
+}
+```
