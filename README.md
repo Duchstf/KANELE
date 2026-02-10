@@ -5,7 +5,7 @@ Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate A
 
 Authors: Duc Hoang*, Aarush Gupta*, Philip Harris. MIT. *Equal Contributions. 
 
-[![PDF (Publisher)](https://img.shields.io/badge/PDF-Publisher-blue)](publisher-pdf-link)
+[![PDF (Publisher)](https://img.shields.io/badge/PDF-Publisher-blue)](https://dl.acm.org/doi/10.1145/3748173.3779202)
 [![PDF (arXiv)](https://img.shields.io/badge/PDF-arXiv-b31b1b)](https://arxiv.org/abs/2512.12850)
 
 
