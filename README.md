@@ -126,14 +126,13 @@ Reference on conda environment here: https://docs.conda.io/projects/conda/en/lat
 If you find the work useful to your research, you can cite us here: 
 
 ```
-@inproceedings{Hoang:2025sdb,
-    author = "Hoang, Duc and Gupta, Aarush and Harris, Philip",
-    title = "{KANEL{\'E}: Kolmogorov-Arnold Networks for Efficient LUT-based Evaluation}",
-    eprint = "2512.12850",
-    archivePrefix = "arXiv",
-    primaryClass = "cs.AR",
-    doi = "10.1145/3748173.3779202",
-    month = "12",
-    year = "2025"
-}
+@inproceedings{Hoang_2026,
+   title={KANELÉ: Kolmogorov–Arnold Networks for Efficient LUT-based Evaluation},
+   url={http://dx.doi.org/10.1145/3748173.3779202},
+   DOI={10.1145/3748173.3779202},
+   booktitle={Proceedings of the 2026 ACM/SIGDA International Symposium on Field Programmable Gate Arrays},
+   publisher={ACM},
+   author={Hoang, Duc and Gupta, Aarush and Harris, Philip C},
+   year={2026},
+   month=feb, pages={44–55} }
 ```
