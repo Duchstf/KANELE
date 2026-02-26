@@ -1,7 +1,7 @@
 # KANELÉ: Kolmogorov–Arnold Networks for Efficient LUT-based Evaluation
 
 
-Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate Arrays (FPGA' 2026) - Best Paper Nominee
+Published in 34th ACM/SIGDA International Symposium on Field-Programmable Gate Arrays (FPGA' 2026) - Best Paper Award
 
 Authors: Duc Hoang*, Aarush Gupta*, Philip Harris. MIT. *Equal Contributions. 
 
